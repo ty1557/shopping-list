@@ -234,6 +234,11 @@
             <div class="category-name">🍏 食品</div>
             <div id="history-food" class="history-tags"></div>
         </div>
+
+        <div class="category-block">
+            <div class="category-name">💊 医薬品</div>
+            <div id="history-med" class="history-tags"></div>
+        </div>
         
         <div class="category-block">
             <div class="category-name">💄 コスメ</div>
@@ -266,9 +271,11 @@
     const shoppingList = document.getElementById('shoppingList');
     const clearCheckedBtn = document.getElementById('clearCheckedBtn');
 
-    // ★ 自動仕分け用のキーワード辞書ルール（ユーザーが追加した単語もバッチリ維持しています）
+    // ★ 自動仕分け用のキーワード辞書ルール
     const categoryRules = {
         'food': ['リンゴ', 'りんご', 'バナナ', '肉', '魚', '野菜', 'パン', 'ハム', '牛乳', '卵', '米', 'トマト', '惣菜', 'チョコ', '菓子', '茶', '水', 'カレー', '弁当', '麺'],
+        // ★追加：医薬品カテゴリーと検索キーワード
+        'med': ['バンドエイド', 'チクナイン', 'バファリン', '湿布', '風邪薬', '胃薬', '目薬', '絆創膏', 'サプリ', 'トローチ', '消毒', 'のど飴', '痛み止め', '鎮痛剤', '漢方', 'オロナイン', 'うがい薬'],
         'cosme': ['ジェル', 'ローション', 'リップ', '口紅', 'ファンデ', '化粧水', '乳液', '美容液', 'メイク', 'マスカラ', '眉', 'チーク', 'ネイル', 'クリーム', 'パウダー'],
         'daily': ['ティッシュ', 'ペーパー', '洗剤', 'ソープ', 'シャンプー', 'リンス', '電池', 'ゴミ袋', 'ラップ', '歯磨き粉', 'ブラシ', 'タオル', 'マスク', 'ウェットティッシュ']
     };
@@ -283,13 +290,15 @@
         return 'other';
     }
 
-    let itemHistory = JSON.parse(localStorage.getItem('v3_shopping_history')) || [];
-    let shoppingListItems = JSON.parse(localStorage.getItem('v3_shopping_list')) || [];
+    // 新しいデータ保存キー（カテゴリー追加に伴いv4へアップデート）
+    let itemHistory = JSON.parse(localStorage.getItem('v4_shopping_history')) || [];
+    let shoppingListItems = JSON.parse(localStorage.getItem('v4_shopping_list')) || [];
 
     // 履歴を描画する関数
     function renderHistory() {
         const containers = {
             'food': document.getElementById('history-food'),
+            'med': document.getElementById('history-med'), // ★追加
             'cosme': document.getElementById('history-cosme'),
             'daily': document.getElementById('history-daily'),
             'other': document.getElementById('history-other')
@@ -316,7 +325,7 @@
             deleteX.addEventListener('click', (e) => {
                 e.stopPropagation();
                 itemHistory = itemHistory.filter(item => item !== name);
-                localStorage.setItem('v3_shopping_history', JSON.stringify(itemHistory));
+                localStorage.setItem('v4_shopping_history', JSON.stringify(itemHistory));
                 renderHistory();
             });
             tag.appendChild(deleteX);
@@ -340,7 +349,7 @@
     // 現在のリストを描画
     function renderList() {
         shoppingList.innerHTML = '';
-        localStorage.setItem('v3_shopping_list', JSON.stringify(shoppingListItems));
+        localStorage.setItem('v4_shopping_list', JSON.stringify(shoppingListItems));
 
         shoppingListItems.forEach((item, index) => {
             const li = document.createElement('li');
@@ -394,7 +403,7 @@
 
         if (!itemHistory.includes(name)) {
             itemHistory.push(name);
-            localStorage.setItem('v3_shopping_history', JSON.stringify(itemHistory));
+            localStorage.setItem('v4_shopping_history', JSON.stringify(itemHistory));
             renderHistory();
         }
 
