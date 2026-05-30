@@ -138,7 +138,6 @@
             color: white;
         }
 
-        /* ーーー 追加：バックアップ（エクスポート/インポート）エリアのデザイン ーーー */
         .backup-section {
             margin-bottom: 20px;
             background-color: #f5f5f7;
@@ -173,7 +172,6 @@
             background-color: #6e6e73;
         }
 
-        /* 復元ボタンは少し色を変えて分かりやすく（Appleっぽい落ち着いたグリーン） */
         .import-btn {
             background-color: #34c759;
         }
@@ -181,7 +179,6 @@
         .import-btn:active {
             background-color: #249d43;
         }
-        /* ーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーーー */
 
         .list-header {
             display: flex;
@@ -323,14 +320,13 @@
     const shoppingList = document.getElementById('shoppingList');
     const clearCheckedBtn = document.getElementById('clearCheckedBtn');
     
-    // バックアップ用ボタンの取得
     const exportBtn = document.getElementById('exportBtn');
     const importBtnFake = document.getElementById('importBtnFake');
     const importBtn = document.getElementById('importBtn');
 
-    // ★ 自動仕分け用のキーワード辞書ルール
+    // ★ 自動仕分け用のキーワード辞書ルール（「ピザ」と「ソース」を追加しました）
     const categoryRules = {
-        'food': ['リンゴ', 'りんご', 'バナナ', '肉', '魚', '野菜', '冷凍', 'パン', 'ハム', '牛乳', '卵', '米', 'トマト', '惣菜', 'チョコ', '菓子', '茶', '水', 'カレー', '弁当', '麺'],
+        'food': ['リンゴ', 'りんご', 'バナナ', '肉', '魚', '野菜', '冷凍', 'ピザ', 'ソース', 'パン', 'ハム', '牛乳', '卵', '米', 'トマト', '惣菜', 'チョコ', '菓子', '茶', '水', 'カレー', '弁当', '麺'],
         'med': ['バンドエイド', 'チクナイン', 'バファリン', '湿布', '風邪薬', '胃薬', '目薬', '絆創膏', 'サプリ', 'トローチ', '消毒', 'のど飴', '痛み止め', '鎮痛剤', '漢方', 'オロナイン', 'うがい薬'],
         'cosme': ['ジェル', 'ローション', 'リップ', '口紅', 'ファンデ', '化粧水', '乳液', '美容液', 'メイク', 'マスカラ', '眉', 'チーク', 'ネイル', 'クリーム', 'パウダー'],
         'daily': ['ティッシュ', 'ペーパー', '洗剤', 'ソープ', 'シャンプー', 'リンス', '電池', 'ゴミ袋', 'ラップ', '歯磨き粉', 'ブラシ', 'タオル', 'マスク', 'ウェットティッシュ']
@@ -439,32 +435,23 @@
         });
     }
 
-    // ーーー 追加：エクスポート（データを保存する）処理 ーーー
     exportBtn.addEventListener('click', () => {
-        // 現在の「履歴」と「リスト」を一つの塊にまとめる
         const backupData = {
             history: itemHistory,
             list: shoppingListItems
         };
-        
-        // データを文字に変換して、ダウンロード用の擬似ファイル（Blob）を作る
         const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        
-        // 今日の日付入りのファイル名を自動生成（例: shopping_backup_2026-05-30.json）
         const today = new Date().toISOString().slice(0, 10);
-        
         const a = document.createElement('a');
         a.href = url;
         a.download = `shopping_backup_${today}.json`;
-        a.click(); // 自動でダウンロード処理を発火
-        
-        URL.revokeObjectURL(url); // メモリの解放
+        a.click();
+        URL.revokeObjectURL(url);
     });
 
-    // ーーー 追加：インポート（データから復元する）処理 ーーー
     importBtnFake.addEventListener('click', () => {
-        importBtn.click(); // 緑のボタンが押されたら、本物のファイル選択画面を起動
+        importBtn.click();
     });
 
     importBtn.addEventListener('change', (e) => {
@@ -474,20 +461,13 @@
         const reader = new FileReader();
         reader.onload = function(event) {
             try {
-                // 選ばれたファイルの中身を解析
                 const data = JSON.parse(event.target.result);
-                
-                // 正しいバックアップファイルかチェック
                 if (data.history && data.list) {
                     if (confirm('データを復元しますか？現在のリストと履歴が上書きされます。')) {
                         itemHistory = data.history;
                         shoppingListItems = data.list;
-                        
-                        // iPhoneの金庫（LocalStorage）に保存
                         localStorage.setItem('v4_shopping_history', JSON.stringify(itemHistory));
                         localStorage.setItem('v4_shopping_list', JSON.stringify(shoppingListItems));
-                        
-                        // 画面を再描画して最新状態にする
                         renderHistory();
                         renderList();
                         alert('データを正常に復元しました！');
@@ -496,15 +476,12 @@
                     alert('お買い物リストの正しいバックアップファイルではありません。');
                 }
             } catch (error) {
-                alert('ファイルの読み込みに失敗しました。ファイルが壊れている可能性があります。');
+                alert('ファイルの読み込みに失敗しました。');
             }
         };
         reader.readAsText(file);
-        
-        // 次回同じファイルを選んでも反応するようにリセット
         importBtn.value = '';
     });
-    // ーーーーーーーーーーーーーーーーーーーーーーーーーーーーー
 
     clearCheckedBtn.addEventListener('click', () => {
         shoppingListItems = shoppingListItems.filter(item => !item.checked);
