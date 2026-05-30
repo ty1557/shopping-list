@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>完全保存版・買い物リスト</title>
+    <title>カテゴリ自動分類・買い物リスト</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -69,6 +69,7 @@
             background-color: #005bb5;
         }
 
+        /* ーーー 履歴エリア（カテゴリ別）のデザイン ーーー */
         .history-section {
             margin-bottom: 20px;
             background-color: #f5f5f7;
@@ -80,14 +81,27 @@
             font-size: 13px;
             color: #86868b;
             margin-top: 0;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             font-weight: bold;
+        }
+
+        .category-block {
+            margin-bottom: 12px;
+        }
+
+        .category-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #86868b;
+            margin-bottom: 6px;
+            padding-left: 4px;
         }
 
         .history-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            min-height: 20px;
         }
 
         .history-tag {
@@ -124,6 +138,7 @@
             background-color: #ff3b30;
             color: white;
         }
+        /* ーーーーーーーーーーーーーーーーーーーーーーーーー */
 
         .list-header {
             display: flex;
@@ -213,8 +228,27 @@
     </div>
 
     <div class="history-section">
-        <div class="history-title">🕒 よく買うもの（×で履歴削除）</div>
-        <div id="historyTags" class="history-tags"></div>
+        <div class="history-title">🕒 よく買うもの（自動分類）</div>
+        
+        <div class="category-block">
+            <div class="category-name">🍏 食品</div>
+            <div id="history-food" class="history-tags"></div>
+        </div>
+        
+        <div class="category-block">
+            <div class="category-name">💄 コスメ</div>
+            <div id="history-cosme" class="history-tags"></div>
+        </div>
+        
+        <div class="category-block">
+            <div class="category-name">🧻 日用品</div>
+            <div id="history-daily" class="history-tags"></div>
+        </div>
+        
+        <div class="category-block">
+            <div class="category-name">📦 その他</div>
+            <div id="history-other" class="history-tags"></div>
+        </div>
     </div>
 
     <div class="list-header">
@@ -230,20 +264,49 @@
     const itemCountInput = document.getElementById('itemCount');
     const addBtn = document.getElementById('addBtn');
     const shoppingList = document.getElementById('shoppingList');
-    const historyTagsContainer = document.getElementById('historyTags');
     const clearCheckedBtn = document.getElementById('clearCheckedBtn');
 
-    // データの読み込み
-    let itemHistory = JSON.parse(localStorage.getItem('v2_shopping_history')) || [];
-    let shoppingListItems = JSON.parse(localStorage.getItem('v2_shopping_list')) || [];
+    // ★ 自動仕分け用のキーワード辞書ルール
+    // この中に文字を追加すれば、判定ルールをあなた好みにどんどん強化できます。
+    const categoryRules = {
+        'food': ['リンゴ', 'りんご', 'バナナ', '肉', '魚', '野菜', 'パン', '牛乳', '卵', '米', 'トマト', '惣菜', 'チョコ', '菓子', '茶', '水', 'カレー', '弁当', '麺'],
+        'cosme': ['リップ', '口紅', 'ファンデ', '化粧水', '乳液', '美容液', 'メイク', 'マスカラ', '眉', 'チーク', 'ネイル', 'クリーム', 'パウダー'],
+        'daily': ['ティッシュ', 'ペーパー', '洗剤', 'ソープ', 'シャンプー', 'リンス', '電池', 'ゴミ袋', 'ラップ', '歯ブラシ', 'タオル', 'マスク', 'ウェットティッシュ']
+    };
 
-    // 履歴を描画
+    // 入力された名前からカテゴリを自動判定する関数
+    function judgeCategory(name) {
+        for (const [category, keywords] of Object.entries(categoryRules)) {
+            // キーワードのいずれかが、入力された文字に含まれているかチェック
+            if (keywords.some(keyword => name.includes(keyword))) {
+                return category;
+            }
+        }
+        return 'other'; // どれにも当てはまらない場合
+    }
+
+    // 新しいデータ保存キー（バグ防止のためv3にアップデート）
+    let itemHistory = JSON.parse(localStorage.getItem('v3_shopping_history')) || [];
+    let shoppingListItems = JSON.parse(localStorage.getItem('v3_shopping_list')) || [];
+
+    // 履歴を描画する関数（大幅に強化）
     function renderHistory() {
-        historyTagsContainer.innerHTML = ''; 
+        // 各カテゴリの表示エリアを取得して、一旦きれいにリセット
+        const containers = {
+            'food': document.getElementById('history-food'),
+            'cosme': document.getElementById('history-cosme'),
+            'daily': document.getElementById('history-daily'),
+            'other': document.getElementById('history-other')
+        };
+        
+        Object.values(containers).forEach(c => c.innerHTML = '');
+
+        // 履歴に何もないときの処理
         if (itemHistory.length === 0) {
-            historyTagsContainer.innerHTML = '<span style="font-size:12px; color:#86868b;">履歴はまだありません</span>';
+            containers['other'].innerHTML = '<span style="font-size:12px; color:#86868b;">履歴はまだありません</span>';
             return;
         }
+
         itemHistory.forEach(name => {
             const tag = document.createElement('div');
             tag.className = 'history-tag';
@@ -258,7 +321,7 @@
             deleteX.addEventListener('click', (e) => {
                 e.stopPropagation();
                 itemHistory = itemHistory.filter(item => item !== name);
-                localStorage.setItem('v2_shopping_history', JSON.stringify(itemHistory));
+                localStorage.setItem('v3_shopping_history', JSON.stringify(itemHistory));
                 renderHistory();
             });
             tag.appendChild(deleteX);
@@ -268,14 +331,23 @@
                 itemCountInput.focus();
             });
             
-            historyTagsContainer.appendChild(tag);
+            // ★そのアイテムが属するカテゴリの場所に、自動で振り分けて配置する
+            const matchedCategory = judgeCategory(name);
+            containers[matchedCategory].appendChild(tag);
+        });
+
+        // 空っぽのカテゴリブロックには「なし」と表示して見た目を整える
+        Object.entries(containers).forEach(([key, container]) => {
+            if (container.children.length === 0) {
+                container.innerHTML = '<span style="font-size:12px; color:#c7c7cc; padding-left:4px;">ー</span>';
+            }
         });
     }
 
-    // 現在の買い物リストを描画（完全に作り直しました）
+    // 現在のリストを描画
     function renderList() {
         shoppingList.innerHTML = '';
-        localStorage.setItem('v2_shopping_list', JSON.stringify(shoppingListItems));
+        localStorage.setItem('v3_shopping_list', JSON.stringify(shoppingListItems));
 
         shoppingListItems.forEach((item, index) => {
             const li = document.createElement('li');
@@ -289,7 +361,7 @@
             checkbox.checked = item.checked;
             checkbox.addEventListener('change', () => {
                 shoppingListItems[index].checked = checkbox.checked;
-                renderList(); // 状態が変わったら再描画して保存
+                renderList();
             });
 
             const textSpan = document.createElement('span');
@@ -313,13 +385,11 @@
         });
     }
 
-    // チェック済を一括削除
     clearCheckedBtn.addEventListener('click', () => {
         shoppingListItems = shoppingListItems.filter(item => !item.checked);
         renderList();
     });
 
-    // 追加ボタン
     addBtn.addEventListener('click', () => {
         const name = itemNameInput.value.trim();
         const count = itemCountInput.value;
@@ -329,14 +399,12 @@
             return;
         }
 
-        // 履歴への保存
         if (!itemHistory.includes(name)) {
             itemHistory.push(name);
-            localStorage.setItem('v2_shopping_history', JSON.stringify(itemHistory));
+            localStorage.setItem('v3_shopping_history', JSON.stringify(itemHistory));
             renderHistory();
         }
 
-        // リストデータへの追加
         shoppingListItems.push({
             name: name,
             count: count,
@@ -356,7 +424,6 @@
         }
     });
 
-    // 初期起動時の描画
     renderHistory();
     renderList();
 </script>
