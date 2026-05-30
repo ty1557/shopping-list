@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完全保存版・買い物リスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            background-color: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #1d1d1f;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="number"] {
+            width: 60px; 
+            padding: 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:active {
+            background-color: #005bb5;
+        }
+
+        .history-section {
+            margin-bottom: 20px;
+            background-color: #f5f5f7;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .history-title {
+            font-size: 13px;
+            color: #86868b;
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .history-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-tag {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            color: #1d1d1f;
+            padding: 6px 6px 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid #d2d2d7;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .history-tag:active {
+            background-color: #e8e8ed;
+        }
+
+        .history-delete-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            margin-left: 6px;
+            color: #86868b;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 50%;
+        }
+
+        .history-delete-btn:active {
+            background-color: #ff3b30;
+            color: white;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+
+        .list-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1d1d1f;
+        }
+
+        .clear-checked-btn {
+            background-color: #ff9500;
+            color: white;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+            font-weight: normal;
+        }
+
+        .clear-checked-btn:active {
+            background-color: #e08200;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border-top: 1px solid #e8e8ed;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 8px;
+            border-bottom: 1px solid #f5f5f7;
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+
+        .item-text {
+            font-size: 16px;
+            color: #1d1d1f;
+            word-break: break-all;
+        }
+
+        .checked .item-text {
+            color: #86868b;
+            text-decoration: line-through;
+        }
+
+        .delete-btn {
+            background-color: transparent;
+            color: #ff3b30;
+            border: none;
+            padding: 4px 8px;
+            font-size: 14px;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>🛒 買い物リスト</h1>
+    
+    <div class="input-group">
+        <input type="text" id="itemName" placeholder="買うもの（例: リンゴ）" required>
+        <input type="number" id="itemCount" value="1" min="1" placeholder="個数">
+        <button id="addBtn">追加</button>
+    </div>
+
+    <div class="history-section">
+        <div class="history-title">🕒 よく買うもの（×で履歴削除）</div>
+        <div id="historyTags" class="history-tags"></div>
+    </div>
+
+    <div class="list-header">
+        <div class="list-title">📝 現在のリスト</div>
+        <button id="clearCheckedBtn" class="clear-checked-btn">チェック済を削除</button>
+    </div>
+
+    <ul id="shoppingList"></ul>
+</div>
+
+<script>
+    const itemNameInput = document.getElementById('itemName');
+    const itemCountInput = document.getElementById('itemCount');
+    const addBtn = document.getElementById('addBtn');
+    const shoppingList = document.getElementById('shoppingList');
+    const historyTagsContainer = document.getElementById('historyTags');
+    const clearCheckedBtn = document.getElementById('clearCheckedBtn');
+
+    // データの読み込み
+    let itemHistory = JSON.parse(localStorage.getItem('v2_shopping_history')) || [];
+    let shoppingListItems = JSON.parse(localStorage.getItem('v2_shopping_list')) || [];
+
+    // 履歴を描画
+    function renderHistory() {
+        historyTagsContainer.innerHTML = ''; 
+        if (itemHistory.length === 0) {
+            historyTagsContainer.innerHTML = '<span style="font-size:12px; color:#86868b;">履歴はまだありません</span>';
+            return;
+        }
+        itemHistory.forEach(name => {
+            const tag = document.createElement('div');
+            tag.className = 'history-tag';
+            
+            const textSpan = document.createElement('span');
+            textSpan.textContent = name;
+            tag.appendChild(textSpan);
+
+            const deleteX = document.createElement('span');
+            deleteX.className = 'history-delete-btn';
+            deleteX.textContent = '×';
+            deleteX.addEventListener('click', (e) => {
+                e.stopPropagation();
+                itemHistory = itemHistory.filter(item => item !== name);
+                localStorage.setItem('v2_shopping_history', JSON.stringify(itemHistory));
+                renderHistory();
+            });
+            tag.appendChild(deleteX);
+            
+            tag.addEventListener('click', () => {
+                itemNameInput.value = name;
+                itemCountInput.focus();
+            });
+            
+            historyTagsContainer.appendChild(tag);
+        });
+    }
+
+    // 現在の買い物リストを描画（完全に作り直しました）
+    function renderList() {
+        shoppingList.innerHTML = '';
+        localStorage.setItem('v2_shopping_list', JSON.stringify(shoppingListItems));
+
+        shoppingListItems.forEach((item, index) => {
+            const li = document.createElement('li');
+            if (item.checked) li.className = 'checked';
+
+            const itemLeft = document.createElement('div');
+            itemLeft.className = 'item-left';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = item.checked;
+            checkbox.addEventListener('change', () => {
+                shoppingListItems[index].checked = checkbox.checked;
+                renderList(); // 状態が変わったら再描画して保存
+            });
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'item-text';
+            textSpan.textContent = `${item.name} (${item.count}個)`;
+
+            itemLeft.appendChild(checkbox);
+            itemLeft.appendChild(textSpan);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = '削除';
+            deleteBtn.addEventListener('click', () => {
+                shoppingListItems.splice(index, 1);
+                renderList();
+            });
+
+            li.appendChild(itemLeft);
+            li.appendChild(deleteBtn);
+            shoppingList.appendChild(li);
+        });
+    }
+
+    // チェック済を一括削除
+    clearCheckedBtn.addEventListener('click', () => {
+        shoppingListItems = shoppingListItems.filter(item => !item.checked);
+        renderList();
+    });
+
+    // 追加ボタン
+    addBtn.addEventListener('click', () => {
+        const name = itemNameInput.value.trim();
+        const count = itemCountInput.value;
+
+        if (name === '') {
+            alert('買うものを入力してください！');
+            return;
+        }
+
+        // 履歴への保存
+        if (!itemHistory.includes(name)) {
+            itemHistory.push(name);
+            localStorage.setItem('v2_shopping_history', JSON.stringify(itemHistory));
+            renderHistory();
+        }
+
+        // リストデータへの追加
+        shoppingListItems.push({
+            name: name,
+            count: count,
+            checked: false
+        });
+
+        renderList();
+
+        itemNameInput.value = '';
+        itemCountInput.value = '1';
+        itemNameInput.focus();
+    });
+
+    itemNameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addBtn.click();
+        }
+    });
+
+    // 初期起動時の描画
+    renderHistory();
+    renderList();
+</script>
+
+</body>
+</html>
