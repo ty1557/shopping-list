@@ -266,8 +266,7 @@
     const shoppingList = document.getElementById('shoppingList');
     const clearCheckedBtn = document.getElementById('clearCheckedBtn');
 
-    // ★ 自動仕分け用のキーワード辞書ルール
-    // この中に文字を追加すれば、判定ルールをあなた好みにどんどん強化できます。
+    // ★ 自動仕分け用のキーワード辞書ルール（ユーザーが追加した単語もバッチリ維持しています）
     const categoryRules = {
         'food': ['リンゴ', 'りんご', 'バナナ', '肉', '魚', '野菜', 'パン', 'ハム', '牛乳', '卵', '米', 'トマト', '惣菜', 'チョコ', '菓子', '茶', '水', 'カレー', '弁当', '麺'],
         'cosme': ['ジェル', 'ローション', 'リップ', '口紅', 'ファンデ', '化粧水', '乳液', '美容液', 'メイク', 'マスカラ', '眉', 'チーク', 'ネイル', 'クリーム', 'パウダー'],
@@ -277,21 +276,18 @@
     // 入力された名前からカテゴリを自動判定する関数
     function judgeCategory(name) {
         for (const [category, keywords] of Object.entries(categoryRules)) {
-            // キーワードのいずれかが、入力された文字に含まれているかチェック
             if (keywords.some(keyword => name.includes(keyword))) {
                 return category;
             }
         }
-        return 'other'; // どれにも当てはまらない場合
+        return 'other';
     }
 
-    // 新しいデータ保存キー（バグ防止のためv3にアップデート）
     let itemHistory = JSON.parse(localStorage.getItem('v3_shopping_history')) || [];
     let shoppingListItems = JSON.parse(localStorage.getItem('v3_shopping_list')) || [];
 
-    // 履歴を描画する関数（大幅に強化）
+    // 履歴を描画する関数
     function renderHistory() {
-        // 各カテゴリの表示エリアを取得して、一旦きれいにリセット
         const containers = {
             'food': document.getElementById('history-food'),
             'cosme': document.getElementById('history-cosme'),
@@ -301,7 +297,6 @@
         
         Object.values(containers).forEach(c => c.innerHTML = '');
 
-        // 履歴に何もないときの処理
         if (itemHistory.length === 0) {
             containers['other'].innerHTML = '<span style="font-size:12px; color:#86868b;">履歴はまだありません</span>';
             return;
@@ -331,12 +326,10 @@
                 itemCountInput.focus();
             });
             
-            // ★そのアイテムが属するカテゴリの場所に、自動で振り分けて配置する
             const matchedCategory = judgeCategory(name);
             containers[matchedCategory].appendChild(tag);
         });
 
-        // 空っぽのカテゴリブロックには「なし」と表示して見た目を整える
         Object.entries(containers).forEach(([key, container]) => {
             if (container.children.length === 0) {
                 container.innerHTML = '<span style="font-size:12px; color:#c7c7cc; padding-left:4px;">ー</span>';
