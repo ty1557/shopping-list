@@ -330,7 +330,6 @@
     const importBtnFake = document.getElementById('importBtnFake');
     const importBtn = document.getElementById('importBtn');
 
-    // ★ 辞書ルールを更に強化（表記揺れや具体的なブランド名などを追加）
     const categoryRules = {
         'food': ['リンゴ', 'りんご', 'バナナ', '肉', '魚', '野菜', '冷凍', 'ピザ', 'ソース', 'パン', 'ハム', '牛乳', '卵', '米', 'トマト', '惣菜', 'チョコ', '菓子', '茶', '水', 'カレー', '弁当', '麺'],
         'med': ['バンドエイド', 'チクナイン', 'バファリン', '湿布', '風邪薬', '胃薬', '目薬', '絆創膏', 'サプリ', 'トローチ', '消毒', 'のど飴', '痛み止め', '鎮痛剤', '漢方', 'オロナイン', 'うがい薬'],
@@ -340,13 +339,22 @@
     };
 
     function judgeCategory(name) {
-        // キーワード部分一致検索
+        let bestCategory = 'other';
+        let maxLength = 0;
+
+        // ★ 修正点: 一致したキーワードの中で最も文字数が長いものを採用する
+        // 「アンダーパンツ」の場合、「パン（2文字）」よりも「アンダー（4文字）」が勝つため衣類になる
         for (const [category, keywords] of Object.entries(categoryRules)) {
-            if (keywords.some(keyword => name.includes(keyword))) {
-                return category;
+            for (const keyword of keywords) {
+                if (name.includes(keyword)) {
+                    if (keyword.length > maxLength) {
+                        maxLength = keyword.length;
+                        bestCategory = category;
+                    }
+                }
             }
         }
-        return 'other';
+        return bestCategory;
     }
 
     let itemHistory = JSON.parse(localStorage.getItem('v4_shopping_history')) || [];
