@@ -210,7 +210,6 @@
         ul {
             list-style: none;
             padding: 0;
-            /* 次のセクションとの余白を確保するためマージンを追加 */
             margin: 0 0 24px 0;
             border-top: 1px solid #e8e8ed;
         }
@@ -268,14 +267,12 @@
         <button id="addBtn">追加</button>
     </div>
 
-    <!-- ここへ「現在のリスト」を移動 -->
     <div class="list-header">
         <div class="list-title">📝 現在のリスト</div>
         <button id="clearCheckedBtn" class="clear-checked-btn">チェック済を削除</button>
     </div>
 
     <ul id="shoppingList"></ul>
-    <!-- 移動ここまで -->
 
     <div class="history-section">
         <div class="history-title">🕒 よく買うもの（自動分類）</div>
@@ -298,6 +295,12 @@
         <div class="category-block">
             <div class="category-name">🧻 日用品</div>
             <div id="history-daily" class="history-tags"></div>
+        </div>
+
+        <!-- 衣類のカテゴリを追加 -->
+        <div class="category-block">
+            <div class="category-name">👕 衣類</div>
+            <div id="history-clothes" class="history-tags"></div>
         </div>
         
         <div class="category-block">
@@ -328,11 +331,13 @@
     const importBtnFake = document.getElementById('importBtnFake');
     const importBtn = document.getElementById('importBtn');
 
+    // 辞書ルールに 'clothes' (衣類) を追加
     const categoryRules = {
         'food': ['リンゴ', 'りんご', 'バナナ', '肉', '魚', '野菜', '冷凍', 'ピザ', 'ソース', 'パン', 'ハム', '牛乳', '卵', '米', 'トマト', '惣菜', 'チョコ', '菓子', '茶', '水', 'カレー', '弁当', '麺'],
         'med': ['バンドエイド', 'チクナイン', 'バファリン', '湿布', '風邪薬', '胃薬', '目薬', '絆創膏', 'サプリ', 'トローチ', '消毒', 'のど飴', '痛み止め', '鎮痛剤', '漢方', 'オロナイン', 'うがい薬'],
         'cosme': ['ジェル', 'ローション', 'リップ', '口紅', 'ファンデ', '化粧水', '乳液', '美容液', 'メイク', 'マスカラ', '眉', 'チーク', 'ネイル', 'クリーム', 'パウダー'],
-        'daily': ['ティッシュ', 'ペーパー', '洗剤', 'ソープ', 'シャンプー', 'リンス', '電池', 'ゴミ袋', 'ラップ', '歯磨き粉', 'ブラシ', 'タオル', 'マスク', 'デント', 'コンクール', 'ウェットティッシュ']
+        'daily': ['ティッシュ', 'ペーパー', '洗剤', 'ソープ', 'シャンプー', 'リンス', '電池', 'ゴミ袋', 'ラップ', '歯磨き粉', 'ブラシ', 'タオル', 'マスク', 'デント', 'コンクール', 'ウェットティッシュ'],
+        'clothes': ['アンダー', 'シャツ', 'Tシャツ', 'パンツ', 'ズボン', '靴下', 'ソックス', 'インナー', 'アウター', 'ジャケット', 'コート', 'セーター', 'ニット', 'カーディガン', 'スカート', 'ワンピース', 'ブラウス', 'パーカー', 'スウェット', '肌着', '下着']
     };
 
     function judgeCategory(name) {
@@ -348,11 +353,13 @@
     let shoppingListItems = JSON.parse(localStorage.getItem('v4_shopping_list')) || [];
 
     function renderHistory() {
+        // history-clothes を追加
         const containers = {
             'food': document.getElementById('history-food'),
             'med': document.getElementById('history-med'),
             'cosme': document.getElementById('history-cosme'),
             'daily': document.getElementById('history-daily'),
+            'clothes': document.getElementById('history-clothes'),
             'other': document.getElementById('history-other')
         };
         
