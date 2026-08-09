@@ -297,7 +297,6 @@
             <div id="history-daily" class="history-tags"></div>
         </div>
 
-        <!-- 衣類のカテゴリを追加 -->
         <div class="category-block">
             <div class="category-name">👕 衣類</div>
             <div id="history-clothes" class="history-tags"></div>
@@ -331,16 +330,17 @@
     const importBtnFake = document.getElementById('importBtnFake');
     const importBtn = document.getElementById('importBtn');
 
-    // 辞書ルールに 'clothes' (衣類) を追加
+    // ★ 辞書ルールを更に強化（表記揺れや具体的なブランド名などを追加）
     const categoryRules = {
         'food': ['リンゴ', 'りんご', 'バナナ', '肉', '魚', '野菜', '冷凍', 'ピザ', 'ソース', 'パン', 'ハム', '牛乳', '卵', '米', 'トマト', '惣菜', 'チョコ', '菓子', '茶', '水', 'カレー', '弁当', '麺'],
         'med': ['バンドエイド', 'チクナイン', 'バファリン', '湿布', '風邪薬', '胃薬', '目薬', '絆創膏', 'サプリ', 'トローチ', '消毒', 'のど飴', '痛み止め', '鎮痛剤', '漢方', 'オロナイン', 'うがい薬'],
         'cosme': ['ジェル', 'ローション', 'リップ', '口紅', 'ファンデ', '化粧水', '乳液', '美容液', 'メイク', 'マスカラ', '眉', 'チーク', 'ネイル', 'クリーム', 'パウダー'],
         'daily': ['ティッシュ', 'ペーパー', '洗剤', 'ソープ', 'シャンプー', 'リンス', '電池', 'ゴミ袋', 'ラップ', '歯磨き粉', 'ブラシ', 'タオル', 'マスク', 'デント', 'コンクール', 'ウェットティッシュ'],
-        'clothes': ['アンダー', 'シャツ', 'Tシャツ', 'パンツ', 'ズボン', '靴下', 'ソックス', 'インナー', 'アウター', 'ジャケット', 'コート', 'セーター', 'ニット', 'カーディガン', 'スカート', 'ワンピース', 'ブラウス', 'パーカー', 'スウェット', '肌着', '下着']
+        'clothes': ['アンダー', 'ウェア', 'ウエア', 'シャツ', 'Tシャツ', 'パンツ', 'ズボン', '靴下', 'ソックス', 'インナー', 'アウター', 'ジャケット', 'コート', 'セーター', 'ニット', 'カーディガン', 'スカート', 'ワンピース', 'ブラウス', 'パーカー', 'スウェット', '肌着', '下着', '服', 'エアリズム', 'ヒートテック']
     };
 
     function judgeCategory(name) {
+        // キーワード部分一致検索
         for (const [category, keywords] of Object.entries(categoryRules)) {
             if (keywords.some(keyword => name.includes(keyword))) {
                 return category;
@@ -353,7 +353,6 @@
     let shoppingListItems = JSON.parse(localStorage.getItem('v4_shopping_list')) || [];
 
     function renderHistory() {
-        // history-clothes を追加
         const containers = {
             'food': document.getElementById('history-food'),
             'med': document.getElementById('history-med'),
