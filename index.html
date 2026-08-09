@@ -210,7 +210,8 @@
         ul {
             list-style: none;
             padding: 0;
-            margin: 0;
+            /* 次のセクションとの余白を確保するためマージンを追加 */
+            margin: 0 0 24px 0;
             border-top: 1px solid #e8e8ed;
         }
 
@@ -267,6 +268,15 @@
         <button id="addBtn">追加</button>
     </div>
 
+    <!-- ここへ「現在のリスト」を移動 -->
+    <div class="list-header">
+        <div class="list-title">📝 現在のリスト</div>
+        <button id="clearCheckedBtn" class="clear-checked-btn">チェック済を削除</button>
+    </div>
+
+    <ul id="shoppingList"></ul>
+    <!-- 移動ここまで -->
+
     <div class="history-section">
         <div class="history-title">🕒 よく買うもの（自動分類）</div>
         
@@ -305,12 +315,6 @@
         </div>
     </div>
 
-    <div class="list-header">
-        <div class="list-title">📝 現在のリスト</div>
-        <button id="clearCheckedBtn" class="clear-checked-btn">チェック済を削除</button>
-    </div>
-
-    <ul id="shoppingList"></ul>
 </div>
 
 <script>
@@ -324,7 +328,6 @@
     const importBtnFake = document.getElementById('importBtnFake');
     const importBtn = document.getElementById('importBtn');
 
-    // ★ 自動仕分け用のキーワード辞書ルール（「デント」と「コンクール」が綺麗に入りました）
     const categoryRules = {
         'food': ['リンゴ', 'りんご', 'バナナ', '肉', '魚', '野菜', '冷凍', 'ピザ', 'ソース', 'パン', 'ハム', '牛乳', '卵', '米', 'トマト', '惣菜', 'チョコ', '菓子', '茶', '水', 'カレー', '弁当', '麺'],
         'med': ['バンドエイド', 'チクナイン', 'バファリン', '湿布', '風邪薬', '胃薬', '目薬', '絆創膏', 'サプリ', 'トローチ', '消毒', 'のど飴', '痛み止め', '鎮痛剤', '漢方', 'オロナイン', 'うがい薬'],
